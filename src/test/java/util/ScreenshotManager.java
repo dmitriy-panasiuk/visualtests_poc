@@ -2,11 +2,13 @@ package util;
 
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import ru.yandex.qatools.ashot.AShot;
 import ru.yandex.qatools.ashot.Screenshot;
 import ru.yandex.qatools.ashot.comparison.ImageDiff;
 import ru.yandex.qatools.ashot.comparison.ImageDiffer;
+import ru.yandex.qatools.ashot.coordinates.WebDriverCoordsProvider;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageOutputStream;
@@ -32,16 +34,9 @@ public class ScreenshotManager {
         setRootScreenshotsDir(Paths.get(resourcesDir.toURI()).toAbsolutePath() + "/screenshots");
     }
 
-    private static Screenshot takeScreenshot(String name) throws IOException {
-        Screenshot actualScreenshot = new AShot().takeScreenshot(driver);
-        File result = new File(actualDir + name);
-        ImageIO.write(actualScreenshot.getImage(), "png", result);
-        return actualScreenshot;
-    }
-
-    public static int compareWithExpected(String name) throws IOException {
+    public static int compareWithExpected(String name, WebElement element) throws IOException {
         String imageName = getScreenShotName(name);
-        Screenshot actualScreenshot = takeScreenshot(imageName);
+        Screenshot actualScreenshot = takeScreenshot(imageName, element);
         Screenshot expectedScreenshot = null;
         try {
             expectedScreenshot = new Screenshot(ImageIO.read(new File(expectedDir + "/" + imageName)));
@@ -56,6 +51,25 @@ public class ScreenshotManager {
             createGif(imageName);
         }
         return diff.getDiffSize();
+    }
+
+    public static int compareWithExpected(String name) throws IOException {
+        return compareWithExpected(name, null);
+    }
+
+/*    private static Screenshot takeScreenshot(String name) throws IOException {
+        return takeScreenshot(name, null);
+    }*/
+
+    private static Screenshot takeScreenshot(String name, WebElement element) throws IOException {
+        Screenshot actualScreenshot;
+        if (element != null)
+            actualScreenshot = new AShot().coordsProvider(new WebDriverCoordsProvider()).takeScreenshot(driver, element);
+        else
+            actualScreenshot = new AShot().takeScreenshot(driver);
+        File result = new File(actualDir + name);
+        ImageIO.write(actualScreenshot.getImage(), "png", result);
+        return actualScreenshot;
     }
 
     private static void createGif(String imageName) throws IOException {
