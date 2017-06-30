@@ -3,6 +3,7 @@ package tests;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -25,8 +26,11 @@ public class BaseTest {
     @BeforeClass
     public static void before() throws IOException, URISyntaxException {
         driver = new ChromeDriver();
+        //driver = new FirefoxDriver();
+        //driver = new InternetExplorerDriver();
         ScreenshotManager.init(driver);
-        driver.manage().window().maximize();
+        //driver.manage().window().maximize();
+        driver.manage().window().setSize(new Dimension(1200, 800));
         wait = new WebDriverWait(driver, 10);
         actions = new Actions(driver);
     }
